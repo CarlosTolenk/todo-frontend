@@ -1,11 +1,22 @@
-<h2 mat-dialog-title>{{ data.title }}</h2>
+<h2 mat-dialog-title class="confirm-dialog__title">
+  <span class="confirm-dialog__badge" aria-hidden="true">
+    <mat-icon>{{ data.icon ?? 'person_add' }}</mat-icon>
+  </span>
 
-<mat-dialog-content>
+  <span class="confirm-dialog__heading">
+    @if (data.eyebrow) {
+      <span class="confirm-dialog__eyebrow">{{ data.eyebrow }}</span>
+    }
+    <span class="confirm-dialog__title-text">{{ data.title }}</span>
+  </span>
+</h2>
+
+<mat-dialog-content class="confirm-dialog__content">
   <p>{{ data.message }}</p>
 </mat-dialog-content>
 
-<mat-dialog-actions align="end">
-  <button mat-button mat-dialog-close="false">
+<mat-dialog-actions class="confirm-dialog__actions" align="end">
+  <button mat-stroked-button [mat-dialog-close]="false">
     {{ data.cancelLabel ?? 'Cancelar' }}
   </button>
   <button mat-flat-button color="primary" [mat-dialog-close]="true">

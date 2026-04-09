@@ -49,16 +49,20 @@ export class LoginPageComponent implements OnInit {
         this.dialog
           .open(ConfirmDialogComponent, {
             width: '28rem',
+            autoFocus: false,
             data: {
+              eyebrow: 'Usuario no encontrado',
               title: 'Crear usuario',
               message: `No encontramos un usuario para ${email}. ¿Quieres crearlo ahora?`,
               confirmLabel: 'Crear usuario',
+              cancelLabel: 'Volver',
+              icon: 'person_search',
             },
           })
           .afterClosed(),
       );
 
-      if (!shouldCreate) {
+      if (shouldCreate !== true) {
         return;
       }
 

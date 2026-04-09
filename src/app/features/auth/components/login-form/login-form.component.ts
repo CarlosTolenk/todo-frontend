@@ -22,15 +22,31 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginFormComponent {
+  private readonly emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
   @Input() loading = false;
   @Input() errorMessage: string | null = null;
   @Output() readonly submitted = new EventEmitter<string>();
 
   readonly form = this.formBuilder.nonNullable.group({
-    email: ['', [Validators.required, Validators.email]],
+    email: ['', [Validators.required, Validators.pattern(this.emailPattern)]],
   });
 
   constructor(private readonly formBuilder: FormBuilder) {}
+
+  get emailErrorMessage(): string | null {
+    const emailControl = this.form.controls.email;
+
+    if (emailControl.hasError('required')) {
+      return 'El email es obligatorio.';
+    }
+
+    if (emailControl.hasError('pattern')) {
+      return 'Ingresa un correo válido, por ejemplo nombre@dominio.com.';
+    }
+
+    return null;
+  }
 
   submit(): void {
     if (this.form.invalid || this.loading) {
