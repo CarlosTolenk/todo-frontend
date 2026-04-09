@@ -1,0 +1,19 @@
+.task-form {
+  display: grid;
+  gap: 1rem;
+}
+
+mat-form-field,
+button {
+  width: 100%;
+}
+
+button {
+  min-height: 3rem;
+}
+
+button span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}

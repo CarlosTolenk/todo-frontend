@@ -1,0 +1,22 @@
+<form class="task-form" [formGroup]="form" (ngSubmit)="submit()">
+  <mat-form-field appearance="outline">
+    <mat-label>Título</mat-label>
+    <input matInput formControlName="title" maxlength="120" />
+    @if (form.controls.title.hasError('required')) {
+      <mat-error>El título es obligatorio.</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Descripción</mat-label>
+    <textarea matInput formControlName="description" rows="4" maxlength="500"></textarea>
+    <mat-hint align="end">{{ form.controls.description.value.length }}/500</mat-hint>
+  </mat-form-field>
+
+  <button mat-flat-button color="primary" type="submit" [disabled]="loading">
+    @if (loading) {
+      <mat-spinner diameter="20" />
+    }
+    <span>{{ submitLabel }}</span>
+  </button>
+</form>

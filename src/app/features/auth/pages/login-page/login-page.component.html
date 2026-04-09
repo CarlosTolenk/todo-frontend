@@ -1,0 +1,16 @@
+<section class="login-page">
+  <div class="login-page__copy">
+    <p class="login-page__eyebrow">AtomChat Tasks</p>
+    <h1>Gestiona tus tareas con un flujo simple y claro.</h1>
+    <p>
+      Busca tu usuario por email y entra directamente. Si todavía no existe, la app te propone
+      crearlo sin salir del flujo.
+    </p>
+  </div>
+
+  <app-login-form
+    [loading]="(loading$ | async) ?? false"
+    [errorMessage]="errorMessage$ | async"
+    (submitted)="onSubmit($event)"
+  />
+</section>

@@ -1,0 +1,69 @@
+@if (vm$ | async; as vm) {
+  <section class="tasks-page">
+    <header class="tasks-page__header">
+      <div>
+        <p class="tasks-page__eyebrow">Sesión activa</p>
+        <h1>Tus tareas</h1>
+        <p>{{ vm.user?.email }}</p>
+      </div>
+
+      <button mat-stroked-button type="button" (click)="logout()">
+        <mat-icon aria-hidden="true">logout</mat-icon>
+        Cerrar sesión
+      </button>
+    </header>
+
+    <div class="tasks-page__grid">
+      <mat-card class="tasks-page__panel">
+        <mat-card-header>
+          <mat-card-title>Nueva tarea</mat-card-title>
+          <mat-card-subtitle>Agrega una tarea asociada a tu usuario actual.</mat-card-subtitle>
+        </mat-card-header>
+
+        <mat-card-content>
+          <app-task-form
+            [loading]="vm.creating"
+            [submitLabel]="'Agregar tarea'"
+            (submitted)="createTask($event)"
+          />
+        </mat-card-content>
+      </mat-card>
+
+      <section class="tasks-page__content">
+        @if (vm.errorMessage && vm.tasks.length) {
+          <p class="tasks-page__error" role="alert">{{ vm.errorMessage }}</p>
+        }
+
+        @if (vm.errorMessage && !vm.loading && !vm.tasks.length) {
+          <app-page-state
+            icon="error"
+            title="No pudimos cargar tus tareas"
+            [description]="vm.errorMessage"
+            actionLabel="Reintentar"
+            [action]="retry.bind(this)"
+          />
+        } @else if (vm.loading) {
+          <app-page-state
+            icon="hourglass_top"
+            title="Cargando tareas"
+            description="Estamos consultando la API y preparando tu lista."
+          />
+        } @else if (!vm.tasks.length) {
+          <app-page-state
+            icon="task_alt"
+            title="Todavía no tienes tareas"
+            description="Crea la primera tarea con el formulario de la izquierda."
+          />
+        } @else {
+          <app-tasks-list
+            [tasks]="vm.tasks"
+            [pendingTaskIds]="vm.pendingTaskIds"
+            (toggleCompleted)="updateTask($event.task, { completed: $event.completed })"
+            (edit)="editTask($event)"
+            (remove)="removeTask($event)"
+          />
+        }
+      </section>
+    </div>
+  </section>
+}

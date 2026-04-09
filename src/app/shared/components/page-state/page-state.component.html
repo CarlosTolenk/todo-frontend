@@ -1,0 +1,11 @@
+<section class="page-state" aria-live="polite">
+  <mat-icon class="page-state__icon" aria-hidden="true">{{ icon }}</mat-icon>
+  <h2>{{ title }}</h2>
+  <p>{{ description }}</p>
+
+  @if (action && actionLabel) {
+    <button mat-flat-button color="primary" type="button" (click)="action()">
+      {{ actionLabel }}
+    </button>
+  }
+</section>

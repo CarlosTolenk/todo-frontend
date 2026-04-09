@@ -1,0 +1,14 @@
+<h2 mat-dialog-title>Editar tarea</h2>
+
+<mat-dialog-content>
+  <app-task-form
+    [loading]="data.loading"
+    [submitLabel]="'Guardar cambios'"
+    [initialValue]="initialValue"
+    (submitted)="save($event)"
+  />
+</mat-dialog-content>
+
+<mat-dialog-actions align="end">
+  <button mat-button mat-dialog-close>Cancelar</button>
+</mat-dialog-actions>

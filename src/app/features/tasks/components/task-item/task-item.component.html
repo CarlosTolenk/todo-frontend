@@ -1,0 +1,34 @@
+<mat-card class="task-card" [class.task-card--completed]="task.completed">
+  <mat-card-header>
+    <mat-card-title>{{ task.title }}</mat-card-title>
+    <mat-card-subtitle>
+      Creada {{ task.createdAt | date: 'medium' }}
+    </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <p>{{ task.description || 'Sin descripción.' }}</p>
+  </mat-card-content>
+
+  <mat-card-actions class="task-card__actions">
+    <mat-checkbox
+      [checked]="task.completed"
+      [disabled]="disabled"
+      (change)="onToggle($event)"
+      aria-label="Cambiar estado de la tarea"
+    >
+      {{ task.completed ? 'Completada' : 'Pendiente' }}
+    </mat-checkbox>
+
+    <div class="task-card__buttons">
+      <button mat-button type="button" [disabled]="disabled" (click)="edit.emit()">
+        <mat-icon aria-hidden="true">edit</mat-icon>
+        Editar
+      </button>
+      <button mat-button type="button" color="warn" [disabled]="disabled" (click)="remove.emit()">
+        <mat-icon aria-hidden="true">delete</mat-icon>
+        Eliminar
+      </button>
+    </div>
+  </mat-card-actions>
+</mat-card>

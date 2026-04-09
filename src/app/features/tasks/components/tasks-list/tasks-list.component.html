@@ -1,0 +1,11 @@
+<section class="tasks-list" aria-live="polite">
+  @for (task of tasks; track trackByTaskId($index, task)) {
+    <app-task-item
+      [task]="task"
+      [disabled]="isPending(task.id)"
+      (toggleCompleted)="toggleCompleted.emit({ task, completed: $event })"
+      (edit)="edit.emit(task)"
+      (remove)="remove.emit(task)"
+    />
+  }
+</section>
