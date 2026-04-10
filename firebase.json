@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "dist/atomchat-tasks",
+    "public": "dist/atomchat-tasks/browser",
     "ignore": [
       "firebase.json",
       "**/.*",
