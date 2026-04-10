@@ -17,7 +17,7 @@ describe('sessionGuard', () => {
         {
           provide: Router,
           useValue: {
-            createUrlTree: jasmine.createSpy('createUrlTree'),
+            createUrlTree: vi.fn(),
           },
         },
       ],
@@ -25,12 +25,12 @@ describe('sessionGuard', () => {
 
     const result = TestBed.runInInjectionContext(() => sessionGuard({} as never, {} as never));
 
-    expect(result).toBeTrue();
+    expect(result).toBe(true);
   });
 
   it('redirects to login when the session is empty', () => {
     const urlTree = {} as ReturnType<Router['createUrlTree']>;
-    const createUrlTree = jasmine.createSpy('createUrlTree').and.returnValue(urlTree);
+    const createUrlTree = vi.fn().mockReturnValue(urlTree);
 
     TestBed.configureTestingModule({
       providers: [
