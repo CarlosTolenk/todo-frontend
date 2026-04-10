@@ -49,11 +49,14 @@ export class LoginFormComponent {
   }
 
   submit(): void {
+    const normalizedEmail = this.form.controls.email.value.trim().toLowerCase();
+    this.form.controls.email.setValue(normalizedEmail);
+
     if (this.form.invalid || this.loading) {
       this.form.markAllAsTouched();
       return;
     }
 
-    this.submitted.emit(this.form.controls.email.value.trim().toLowerCase());
+    this.submitted.emit(normalizedEmail);
   }
 }

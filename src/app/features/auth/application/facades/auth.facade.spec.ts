@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing';
-import { firstValueFrom, of } from 'rxjs';
+import { BehaviorSubject, firstValueFrom, of } from 'rxjs';
 
 import { User } from '../../domain/entities/user.entity';
 import { UserSessionRepository } from '../../domain/repositories/user-session.repository';
@@ -26,13 +26,15 @@ describe('AuthFacade', () => {
   };
 
   beforeEach(() => {
+    const currentUser$ = new BehaviorSubject<User | null>(null);
+
     usersRepositorySpy = {
       findByEmail: vi.fn(),
       create: vi.fn(),
     };
     userSessionRepositorySpy = {
-      currentUser$: of(null),
-      getCurrentUser: vi.fn(),
+      currentUser$,
+      getCurrentUser: vi.fn().mockReturnValue(null),
       save: vi.fn(),
       clear: vi.fn(),
     };
@@ -46,6 +48,16 @@ describe('AuthFacade', () => {
     });
 
     authFacade = TestBed.inject(AuthFacade);
+  });
+
+  it('exposes the current session stream and delegates the lookup helpers', async () => {
+    usersRepositorySpy.findByEmail.mockReturnValue(of(mockUser));
+    userSessionRepositorySpy.getCurrentUser.mockReturnValue(mockUser);
+
+    await expect(firstValueFrom(authFacade.currentUser$)).resolves.toBeNull();
+    expect(authFacade.getCurrentUser()).toEqual(mockUser);
+    await expect(firstValueFrom(authFacade.findUserByEmail(mockUser.email))).resolves.toEqual(mockUser);
+    expect(usersRepositorySpy.findByEmail).toHaveBeenCalledWith(mockUser.email);
   });
 
   it('persists the created user in session', async () => {

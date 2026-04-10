@@ -45,14 +45,20 @@ export class TaskFormComponent {
   constructor(private readonly formBuilder: FormBuilder) {}
 
   submit(): void {
+    const title = this.form.controls.title.value.trim();
+    const description = this.form.controls.description.value.trim();
+
+    this.form.controls.title.setValue(title);
+    this.form.controls.description.setValue(description);
+
     if (this.form.invalid || this.loading) {
       this.form.markAllAsTouched();
       return;
     }
 
     this.submitted.emit({
-      title: this.form.controls.title.value.trim(),
-      description: this.form.controls.description.value.trim(),
+      title,
+      description,
     });
   }
 }

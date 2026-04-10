@@ -111,13 +111,13 @@ export class ApiService {
       return response.data;
     }
 
-    throw new Error(this.mapApiErrorMessage(response.error.code, response.error.message));
+    throw new Error(this.mapApiErrorMessage(response.error?.code, response.error?.message));
   }
 
   private handleError(error: HttpErrorResponse): Observable<never> {
     const apiError = error.error as ApiErrorResponse | undefined;
     const message =
-      apiError && !apiError.success
+      apiError && apiError.success === false && apiError.error
         ? this.mapApiErrorMessage(apiError.error.code, apiError.error.message)
         : this.mapHttpErrorMessage(error);
 
