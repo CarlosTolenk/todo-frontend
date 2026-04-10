@@ -1,8 +1,6 @@
 import { BehaviorSubject, of, throwError } from 'rxjs';
 
-import { AuthFacade } from '../../../../auth/application/facades/auth.facade';
 import { User } from '../../../../auth/domain/entities/user.entity';
-import { TasksFacade } from '../../../application/facades/tasks.facade';
 import { Task } from '../../../domain/entities/task.entity';
 import { TasksPageComponent } from './tasks-page.component';
 

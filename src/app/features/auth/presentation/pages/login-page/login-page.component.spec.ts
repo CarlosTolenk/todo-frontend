@@ -1,6 +1,5 @@
 import { of, throwError } from 'rxjs';
 
-import { AuthFacade } from '../../../application/facades/auth.facade';
 import { User } from '../../../domain/entities/user.entity';
 import { LoginPageComponent } from './login-page.component';
 
