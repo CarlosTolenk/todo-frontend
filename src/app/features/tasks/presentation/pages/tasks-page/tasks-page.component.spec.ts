@@ -23,6 +23,9 @@ describe('TasksPageComponent', () => {
   let dialog: {
     open: ReturnType<typeof vi.fn>;
   };
+  let snackBar: {
+    open: ReturnType<typeof vi.fn>;
+  };
   let router: {
     navigate: ReturnType<typeof vi.fn>;
   };
@@ -76,11 +79,20 @@ describe('TasksPageComponent', () => {
     dialog = {
       open: vi.fn(),
     };
+    snackBar = {
+      open: vi.fn(),
+    };
     router = {
       navigate: vi.fn().mockResolvedValue(true),
     };
 
-    component = new TasksPageComponent(authFacade as never, tasksFacade as never, dialog as never, router as never);
+    component = new TasksPageComponent(
+      authFacade as never,
+      tasksFacade as never,
+      dialog as never,
+      snackBar as never,
+      router as never,
+    );
   });
 
   it('redirects to login on init when there is no active session', () => {
@@ -105,6 +117,8 @@ describe('TasksPageComponent', () => {
   });
 
   it('creates a task and appends it using the facade sort order', () => {
+    const reset = vi.fn();
+    (component as unknown as { createTaskForm?: { reset: () => void } }).createTaskForm = { reset };
     tasksFacade.create.mockReturnValue(of(newerTask));
     component.tasks$.next([olderTask]);
 
@@ -117,6 +131,16 @@ describe('TasksPageComponent', () => {
     });
     expect(component.tasks$.value).toEqual([newerTask, olderTask]);
     expect(component.creating$.value).toBe(false);
+    expect(reset).toHaveBeenCalled();
+    expect(snackBar.open).toHaveBeenCalledWith(
+      'Tarea creada correctamente.',
+      'Cerrar',
+      expect.objectContaining({
+        duration: 3000,
+        horizontalPosition: 'end',
+        verticalPosition: 'top',
+      }),
+    );
   });
 
   it('does nothing when creating a task without an active user', () => {
@@ -147,6 +171,11 @@ describe('TasksPageComponent', () => {
     expect(tasksFacade.update).toHaveBeenCalledWith(olderTask.id, { title: 'Updated title' });
     expect(component.tasks$.value).toEqual([updatedTask]);
     expect(component.pendingTaskIds$.value).toEqual([]);
+    expect(snackBar.open).toHaveBeenCalledWith(
+      'Tarea actualizada correctamente.',
+      'Cerrar',
+      expect.any(Object),
+    );
   });
 
   it('keeps the error message when updating a task fails', () => {
@@ -169,6 +198,15 @@ describe('TasksPageComponent', () => {
 
     expect(tasksFacade.delete).not.toHaveBeenCalled();
     expect(component.tasks$.value).toEqual([olderTask]);
+    expect(dialog.open).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        data: expect.objectContaining({
+          eyebrow: 'Acción permanente',
+          icon: 'delete',
+        }),
+      }),
+    );
   });
 
   it('removes the task after a confirmed deletion', async () => {
@@ -183,6 +221,11 @@ describe('TasksPageComponent', () => {
     expect(tasksFacade.delete).toHaveBeenCalledWith(olderTask.id);
     expect(component.tasks$.value).toEqual([newerTask]);
     expect(component.pendingTaskIds$.value).toEqual([]);
+    expect(snackBar.open).toHaveBeenCalledWith(
+      'Tarea eliminada correctamente.',
+      'Cerrar',
+      expect.any(Object),
+    );
   });
 
   it('keeps the error message when deleting a task fails', async () => {
@@ -198,11 +241,36 @@ describe('TasksPageComponent', () => {
     expect(component.pendingTaskIds$.value).toEqual([]);
   });
 
-  it('logs out and redirects to login', () => {
-    component.logout();
+  it('logs out and redirects to login after confirmation', async () => {
+    dialog.open.mockReturnValue({
+      afterClosed: () => of(true),
+    });
+
+    await component.logout();
 
     expect(authFacade.logout).toHaveBeenCalled();
     expect(router.navigate).toHaveBeenCalledWith(['/login']);
+  });
+
+  it('does not log out when the confirmation is cancelled', async () => {
+    dialog.open.mockReturnValue({
+      afterClosed: () => of(false),
+    });
+
+    await component.logout();
+
+    expect(authFacade.logout).not.toHaveBeenCalled();
+    expect(router.navigate).not.toHaveBeenCalled();
+    expect(dialog.open).toHaveBeenCalledWith(
+      expect.anything(),
+      expect.objectContaining({
+        data: expect.objectContaining({
+          title: 'Cerrar sesión',
+          eyebrow: 'Sesión activa',
+          icon: 'logout',
+        }),
+      }),
+    );
   });
 
   it('retries loading tasks for the active user', () => {

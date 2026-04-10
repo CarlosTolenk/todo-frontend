@@ -2,7 +2,7 @@
   <mat-form-field appearance="outline">
     <mat-label>Título</mat-label>
     <input matInput formControlName="title" maxlength="120" />
-    @if (form.controls.title.hasError('required')) {
+    @if (form.controls.title.hasError('required') && (form.controls.title.touched || form.controls.title.dirty)) {
       <mat-error>El título es obligatorio.</mat-error>
     }
   </mat-form-field>
@@ -10,6 +10,12 @@
   <mat-form-field appearance="outline">
     <mat-label>Descripción</mat-label>
     <textarea matInput formControlName="description" rows="4" maxlength="500"></textarea>
+    @if (
+      form.controls.description.hasError('required') &&
+      (form.controls.description.touched || form.controls.description.dirty)
+    ) {
+      <mat-error>La descripción es obligatoria.</mat-error>
+    }
     <mat-hint align="end">{{ form.controls.description.value.length }}/500</mat-hint>
   </mat-form-field>
 

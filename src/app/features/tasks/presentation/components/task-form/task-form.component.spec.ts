@@ -36,7 +36,7 @@ describe('TaskFormComponent', () => {
     });
   });
 
-  it('blocks invalid submissions and shows the required message', () => {
+  it('blocks invalid submissions when required fields are missing', () => {
     const submitSpy = vi.fn();
     component.submitted.subscribe(submitSpy);
 
@@ -44,7 +44,19 @@ describe('TaskFormComponent', () => {
 
     expect(submitSpy).not.toHaveBeenCalled();
     expect(component.form.controls.title.hasError('required')).toBe(true);
+    expect(component.form.controls.description.hasError('required')).toBe(true);
     expect(component.form.controls.title.touched).toBe(true);
+    expect(component.form.controls.description.touched).toBe(true);
+  });
+
+  it('shows the required description message in the template', () => {
+    component.form.controls.title.setValue('Preparar demo');
+    component.form.controls.description.setValue('');
+
+    component.submit();
+    fixture.detectChanges();
+
+    expect(fixture.nativeElement.textContent).toContain('La descripción es obligatoria.');
   });
 
   it('emits a trimmed payload when the form is valid', () => {
@@ -61,6 +73,20 @@ describe('TaskFormComponent', () => {
     expect(submitSpy).toHaveBeenCalledWith({
       title: 'Preparar demo',
       description: 'Revisar los casos felices',
+    });
+  });
+
+  it('resets the form back to the empty state', () => {
+    component.form.setValue({
+      title: 'Task',
+      description: 'Desc',
+    });
+
+    component.reset();
+
+    expect(component.form.getRawValue()).toEqual({
+      title: '',
+      description: '',
     });
   });
 });

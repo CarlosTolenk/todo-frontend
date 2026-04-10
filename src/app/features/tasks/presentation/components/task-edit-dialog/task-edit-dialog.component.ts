@@ -33,13 +33,13 @@ export interface TaskEditDialogData {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaskEditDialogComponent {
+  readonly initialValue: TaskFormValue;
+
   constructor(
     @Inject(MAT_DIALOG_DATA) readonly data: TaskEditDialogData,
     private readonly dialogRef: MatDialogRef<TaskEditDialogComponent, TaskFormValue>,
-  ) {}
-
-  get initialValue(): TaskFormValue {
-    return {
+  ) {
+    this.initialValue = {
       title: this.data.task.title,
       description: this.data.task.description,
     };
