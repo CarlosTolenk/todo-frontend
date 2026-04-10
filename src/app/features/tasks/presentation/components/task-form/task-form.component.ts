@@ -1,5 +1,5 @@
-import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output, ViewChild } from '@angular/core';
+import { FormBuilder, FormGroupDirective, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -25,6 +25,8 @@ export interface TaskFormValue {
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class TaskFormComponent {
+  @ViewChild(FormGroupDirective) private formDirective?: FormGroupDirective;
+
   @Input() loading = false;
   @Input() submitLabel = 'Guardar';
   @Input() set initialValue(value: TaskFormValue | null) {
@@ -39,10 +41,17 @@ export class TaskFormComponent {
 
   readonly form = this.formBuilder.nonNullable.group({
     title: ['', [Validators.required, Validators.maxLength(120)]],
-    description: ['', [Validators.maxLength(500)]],
+    description: ['', [Validators.required, Validators.maxLength(500)]],
   });
 
   constructor(private readonly formBuilder: FormBuilder) {}
+
+  reset(): void {
+    const emptyValue = { title: '', description: '' };
+
+    this.formDirective?.resetForm(emptyValue);
+    this.form.reset(emptyValue);
+  }
 
   submit(): void {
     const title = this.form.controls.title.value.trim();
