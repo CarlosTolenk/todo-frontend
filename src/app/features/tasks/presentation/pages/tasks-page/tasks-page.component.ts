@@ -8,7 +8,6 @@ import { MatIconModule } from '@angular/material/icon';
 import { BehaviorSubject, combineLatest, finalize, firstValueFrom, map } from 'rxjs';
 
 import { AuthFacade } from '../../../../auth/application/facades/auth.facade';
-import { User } from '../../../../auth/domain/entities/user.entity';
 import { ConfirmDialogComponent } from '../../../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { PageStateComponent } from '../../../../../shared/components/page-state/page-state.component';
 import { TasksFacade } from '../../../application/facades/tasks.facade';
@@ -16,15 +15,6 @@ import { CreateTaskPayload, Task, UpdateTaskPayload } from '../../../domain/enti
 import { TaskEditDialogComponent } from '../../components/task-edit-dialog/task-edit-dialog.component';
 import { TaskFormComponent, TaskFormValue } from '../../components/task-form/task-form.component';
 import { TasksListComponent } from '../../components/tasks-list/tasks-list.component';
-
-interface TasksViewModel {
-  user: User | null;
-  tasks: Task[];
-  loading: boolean;
-  creating: boolean;
-  errorMessage: string | null;
-  pendingTaskIds: string[];
-}
 
 @Component({
   selector: 'app-tasks-page',
