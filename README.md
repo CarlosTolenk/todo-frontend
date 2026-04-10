@@ -14,36 +14,55 @@ Frontend en Angular 17 para autenticación simple por email y gestión de tareas
 
 ## Arquitectura
 
+La app quedó organizada por bounded contexts y capas:
+
 ```text
 src/app
 ├── core
 │   ├── api
-│   ├── guards
-│   ├── models
-│   └── services
+│   └── http
 ├── shared
 │   └── components
 └── features
     ├── auth
+    │   ├── domain
+    │   ├── application
+    │   ├── infrastructure
+    │   └── presentation
     └── tasks
+        ├── domain
+        ├── application
+        ├── infrastructure
+        └── presentation
 ```
+
+### Criterio usado
+
+- `domain`: entidades y contratos de repositorio.
+- `application`: facades y guards que orquestan casos de uso.
+- `infrastructure`: implementación HTTP y persistencia de sesión.
+- `presentation`: páginas y componentes Angular.
+- `core`: piezas técnicas transversales, como el cliente HTTP y contratos de respuesta.
+
+Es DDD pragmático, no académico: separa responsabilidades sin meter factories, aggregates o eventos que aquí no aportan valor.
 
 ## Flujo
 
 ### Login
 
 1. El usuario ingresa su email.
-2. La app llama `GET /users/by-email/:email`.
-3. Si la API devuelve `data` con usuario, se guarda en `sessionStorage` y navega a `/tasks`.
-4. Si la API devuelve `data: null`, se abre un diálogo de confirmación.
-5. Si el usuario confirma, la app llama `POST /users` con `{ email }`, guarda sesión y navega a `/tasks`.
+2. El formulario valida formato antes de llamar al backend.
+3. La app llama `GET /users/by-email/:email`.
+4. Si la API devuelve un usuario, guarda sesión y navega a `/tasks`.
+5. Si la API devuelve `data: null`, abre un diálogo de confirmación.
+6. Solo si el usuario confirma, llama `POST /users`, guarda sesión y navega a `/tasks`.
 
 ### Tasks
 
 1. La ruta `/tasks` está protegida por `sessionGuard`.
-2. La app toma el usuario actual desde `sessionStorage`.
+2. La app toma el usuario actual desde sesión local.
 3. Carga tareas con `GET /tasks?userId=...`.
-4. Las operaciones de crear, editar, completar y eliminar actualizan la UI sin recargar la aplicación.
+4. Crear, editar, completar y eliminar actualizan la UI sin recargar la aplicación.
 
 ## API
 
@@ -58,11 +77,11 @@ Valor configurado:
 https://api-gjqb54fxhq-uc.a.run.app
 ```
 
-Los componentes no contienen llamadas HTTP directas. Toda la integración vive en:
+Los componentes no contienen llamadas HTTP directas. La integración vive en infraestructura:
 
 - `src/app/core/api/api.service.ts`
-- `src/app/core/services/users-api.service.ts`
-- `src/app/core/services/tasks-api.service.ts`
+- `src/app/features/auth/infrastructure/repositories/http-users.repository.ts`
+- `src/app/features/tasks/infrastructure/repositories/http-tasks.repository.ts`
 
 ## Desarrollo local
 
@@ -96,16 +115,15 @@ Nota: en este entorno los tests se validaron usando Brave como binario Chromium-
 CHROME_BIN="/Applications/Brave Browser.app/Contents/MacOS/Brave Browser" npm test -- --watch=false --browsers=ChromeHeadless
 ```
 
-## Decisiones de implementación
+## Decisiones clave
 
-- `SessionService` encapsula persistencia local del usuario actual.
-- `AuthService` resuelve el flujo de login/creación de usuario sin estado global adicional.
-- `TasksPageComponent` mantiene el estado de pantalla con `BehaviorSubject` y actualizaciones locales de la colección.
-- `TasksListComponent` usa `trackBy` por `id`.
-- Los formularios usan `Reactive Forms` con validaciones claras.
-- Los estados de loading, empty y error están resueltos con componentes y mensajes explícitos.
+- `AuthFacade` concentra login, creación de usuario y sesión.
+- `TasksFacade` encapsula operaciones del dominio de tareas.
+- Los repositorios del dominio se inyectan por contrato y se resuelven con implementaciones HTTP/browser en infraestructura.
+- `presentation` quedó desacoplada de detalles HTTP.
+- Los mensajes de error se traducen a textos legibles en el cliente API.
 
 ## Tests incluidos
 
-- `AuthService`: persiste usuario creado y limpia sesión en logout.
+- `AuthFacade`: persiste usuario creado y limpia sesión en logout.
 - `sessionGuard`: permite acceso con sesión y redirige a `/login` cuando no existe usuario.
